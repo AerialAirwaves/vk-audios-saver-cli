@@ -8,7 +8,7 @@ PASSWORD = 'passwd'
 CLIENT_ID = 'XXXXXXX'
 
 # Download destination dir (for mp3's and playlist)
-MUSIC_PATH = '/home/vpupkin/Music/VK/'
+MUSIC_PATH = 'Music/VK/'
 
 # M3U8 playlist file name (you can change file name, but file extension change is not recommended)
 # Playlist will be generated at download destination dir after songs download completion

@@ -8,21 +8,13 @@ import HTMLParser
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3NoHeaderError
 import urlgrabber
-
+import sys
+reload(sys)  
+sys.setdefaultencoding('utf8')
 import vk_api
 import config
 
 from time import time
-
-def runCommand(cmd):
-	if not cmd==None:
-		proc = subprocess.Popen(cmd.split(),
-                            stdin = subprocess.PIPE,
-                            stdout = subprocess.PIPE,
-                            stderr = subprocess.PIPE
-        	                )
-		(out, err) = proc.communicate()
-		return err, out
 
 def get_token(credentials=[]):
 	if not len(credentials):
@@ -54,7 +46,7 @@ def clean_audio_tag(tag):
 	tag = re.sub(r'http://.[^\s]+', '', tag) # remove any urls
 	tag = tag.replace(' :)','') # remove smiles
 	
-	ctag = re.compile(u'[^a-zA-Zа-яА-ЯёЁ0-9\s_\.,&#!?\-\'"`\/\|\[\]\(\)]') 
+	ctag = re.compile(u'[^a-z^A-Z^а-я^А-ЯёЁ0-9\s_\.,&#!?\-\'"`\[\]\(\)]') 
 	tag = ctag.sub('', tag).strip() # kill most unusual symbols
 	tag = re.sub(r'\s+', ' ', tag) # remove long spaces
 
@@ -71,42 +63,74 @@ def set_id3(filename, title, artist):
 	mp3info['artist'] = artist
 	mp3info.save(filename) 
 
-print "VKAudioSync script v0.04 by MelnikovSM"
+print "Типо самопальная качалка музончега с ВКонтактика by MelnikovSM"
 if not os.path.exists(config.MUSIC_PATH):
 	os.makedirs(config.MUSIC_PATH)
-print "Loading songs list from VK.."
+print "Гружу список музона со страницы.."
 token, user_id = get_token(['audio'])
 user_audio = get_audio(token, user_id)['response']
-print "Downloading music to destination dir: %s" % (config.MUSIC_PATH)
+print "Качаю музон в заданный в конфиге каталог: %s" % (config.MUSIC_PATH)
 i = 0
 ei = 0
 afi = 0
+fp=codecs.open(config.MUSIC_PATH+"/"+config.PLAYLIST, 'w', 'utf-8')
+fp.write("#EXTM3U\n")
 for track in user_audio:
 	i+=1
 	aid = str(track.get('aid'))
-	artist = clean_audio_tag(track.get('artist'))
-	title = clean_audio_tag(track.get('title'))
+	artist = str(track.get('artist').encode('utf8'))
+	title = str(track.get('title').encode('utf8'))
+
+	if (artist=="" or artist.isspace()) and (title=="" or title.isspace()):
+		fname=aid
+	elif (artist=="" or artist.isspace()) and not (title=="" or title.isspace()):
+		fname = ("Unknown - "+title).translate(None, ':*?!@%$<>|+\\').replace('/', '-')
+	else: fname = (artist+" - "+title).translate(None, ':*?!@%$<>|+\\').replace('/', '-')
+	
 	url = track.get('url')
 	filename = os.path.basename(url).split('?')[0]
-	filepath = os.path.join(config.MUSIC_PATH, "%s.mp3" % (aid))
-	print "Downloading song #%s with Audio ID: %s" % (i, aid)
+	filepath = os.path.join(config.MUSIC_PATH, "%s.mp3" % (fname))
+	print "Качаю песню #%s.. (%s)" % (i, fname)
 	g = urlgrabber.grabber.URLGrabber(reget='simple')
+	nic=1
 	try:
 		g.urlgrab(url, filename=filepath)
 	except urlgrabber.grabber.URLGrabError, e:
-		if e.exception[1] != 'The requested URL returned error: 416 Requested Range Not Satisfiable':
-			print('Download error: '+e.exception[1])
-			ei+=1
-		else:
-			print "This song is already downloaded, skipping.."
-			afi+=1
-print "Generating playlist.."
-os.system('bash -c "cd '+config.MUSIC_PATH+"; find . -name '*.mp3'|sort -r|sed -r 's/.{2}//' > "+config.PLAYLIST+'"')
-print """>>>>> Download complete! <<<<<
-==========> Runtime statistics <=========="""
-print "Total songs on account: %s" %(i)
+		try:
+			if e.exception[1] != 'The requested URL returned error: 416 Requested Range Not Satisfiable':
+				print('Ошибка закачки: '+e.exception[1])
+				nic=0
+				ei+=1
+			else:
+				print "Данная песня уже закачана, ничо не делаю.."
+				afi+=1
+		except AttributeError:
+			nic=2
+			print "Какая-то хрень с именем файла, пофиг, сохраню как "+aid+".mp3"
+			filepath = os.path.join(config.MUSIC_PATH, "%s.mp3" % (aid))
+			g = urlgrabber.grabber.URLGrabber(reget='simple')
+			try:
+				g.urlgrab(url, filename=filepath)
+			except urlgrabber.grabber.URLGrabError, e:
+				if e.exception[1] != 'The requested URL returned error: 416 Requested Range Not Satisfiable':
+					print('Ошибка закачки: '+e.exception[1])
+					ei+=1
+				else:
+					print "Данная песня уже закачана, ничо не делаю.."
+					afi+=1
+		pass
+	if nic==1:
+		fp.write("#EXTINF:,%s\n" % (artist+" - "+title))
+		fp.write("%s.mp3\n" % (fname))
+	elif nic==2: 
+		fp.write("#EXTINF:,%s\n" % (artist+" - "+title))
+		fp.write("%s.mp3\n" % (aid))
+fp.close()
+print """>>>>> Закачка завершена! <<<<<
+==========> Статистика работы <=========="""
+print "Всего музла на странице: %s" %(i)
 if afi>0:
-	print "Already downloaded songs found : %s" %(afi)
-print "Total downloaded: %s" %(i-afi-ei)
+	print "Ранее скачаного музла в каталоге: %s" %(afi)
+print "Всего скачано/докачано: %s" %(i-afi-ei)
 if ei>0:
-	print "Total download errors: %s" %(ei)
+	print "Ошибок закачки: %s" %(ei)
