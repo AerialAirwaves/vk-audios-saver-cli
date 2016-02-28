@@ -36,32 +36,6 @@ def get_audio(token, uid):
 		'count': audio_cnt}, token)
 
 	return res
-	
-
-def clean_audio_tag(tag):
-	h = HTMLParser.HTMLParser()
-	tag = h.unescape(tag)
-	tag = h.unescape(tag) # need to unescape unescaped entities
-
-	tag = re.sub(r'http://.[^\s]+', '', tag) # remove any urls
-	tag = tag.replace(' :)','') # remove smiles
-	
-	ctag = re.compile(u'[^a-z^A-Z^а-я^А-ЯёЁ0-9\s_\.,&#!?\-\'"`\[\]\(\)]') 
-	tag = ctag.sub('', tag).strip() # kill most unusual symbols
-	tag = re.sub(r'\s+', ' ', tag) # remove long spaces
-
-	return tag
-
-
-def set_id3(filename, title, artist):
-	try:
-		mp3info = EasyID3(filename)
-	except ID3NoHeaderError:
-		mp3info = EasyID3()
-
-	mp3info['title'] = title
-	mp3info['artist'] = artist
-	mp3info.save(filename) 
 
 print "Типо самопальная качалка музончега с ВКонтактика by MelnikovSM"
 if not os.path.exists(config.MUSIC_PATH):
@@ -78,14 +52,14 @@ fp.write("#EXTM3U\n")
 for track in user_audio:
 	i+=1
 	aid = str(track.get('aid'))
-	artist = str(track.get('artist').encode('utf8'))
-	title = str(track.get('title').encode('utf8'))
+	artist = re.sub(' +', ' ', (str(track.get('artist').encode('utf8')).strip())).replace('&amp', '&').replace('&;', '&')
+	title = re.sub(' +', ' ', (str(track.get('title').encode('utf8')).strip())).replace('&amp', '&').replace('&;', '&')
 
 	if (artist=="" or artist.isspace()) and (title=="" or title.isspace()):
 		fname=aid
 	elif (artist=="" or artist.isspace()) and not (title=="" or title.isspace()):
-		fname = ("Unknown - "+title).translate(None, ':*?!@%$<>|+\\').replace('/', '-')
-	else: fname = (artist+" - "+title).translate(None, ':*?!@%$<>|+\\').replace('/', '-')
+		fname = re.sub(' +', ' ', ("Unknown - "+title).translate(None, ':*?!@%$<>|+\\\"').replace('/', '-'))
+	else: fname = re.sub(' +', ' ', (artist+" - "+title).translate(None, ':*?!@%$<>|+\\\"').replace('/', '-'))
 	
 	url = track.get('url')
 	filename = os.path.basename(url).split('?')[0]
