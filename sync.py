@@ -64,35 +64,43 @@ for track in user_audio:
 	url = track.get('url')
 	filename = os.path.basename(url).split('?')[0]
 	filepath = os.path.join(config.MUSIC_PATH, "%s.mp3" % (fname))
-	print "Качаю песню #%s.. (%s)" % (i, fname)
+	print "["+str(int((i*1.0/len(user_audio)*1.0)*100))+"%] "+"Качаю песню \"%s\".. (#%s из %s)" % (fname, i, len(user_audio))
 	g = urlgrabber.grabber.URLGrabber(reget='simple')
 	nic=1
-	try:
-		g.urlgrab(url, filename=filepath)
-	except urlgrabber.grabber.URLGrabError, e:
+	if os.path.isfile(filepath)==False:
 		try:
-			if e.exception[1] != 'The requested URL returned error: 416 Requested Range Not Satisfiable':
-				print('Ошибка закачки: '+e.exception[1])
-				nic=0
-				ei+=1
-			else:
-				print "Данная песня уже закачана, ничо не делаю.."
-				afi+=1
-		except AttributeError:
-			nic=2
-			print "Какая-то хрень с именем файла, пофиг, сохраню как "+aid+".mp3"
-			filepath = os.path.join(config.MUSIC_PATH, "%s.mp3" % (aid))
-			g = urlgrabber.grabber.URLGrabber(reget='simple')
+			g.urlgrab(url, filename=filepath)
+		except urlgrabber.grabber.URLGrabError, e:
 			try:
-				g.urlgrab(url, filename=filepath)
-			except urlgrabber.grabber.URLGrabError, e:
 				if e.exception[1] != 'The requested URL returned error: 416 Requested Range Not Satisfiable':
 					print('Ошибка закачки: '+e.exception[1])
+					nic=0
 					ei+=1
 				else:
 					print "Данная песня уже закачана, ничо не делаю.."
 					afi+=1
-		pass
+			except AttributeError:
+				nic=2
+				print "Какая-то хрень с именем файла, пофиг, сохраню как "+aid+".mp3"
+				filepath = os.path.join(config.MUSIC_PATH, "%s.mp3" % (aid))
+				g = urlgrabber.grabber.URLGrabber(reget='simple')
+				if os.path.isfile(filepath)==False:
+					try:
+						g.urlgrab(url, filename=filepath)
+					except urlgrabber.grabber.URLGrabError, e:
+						if e.exception[1] != 'The requested URL returned error: 416 Requested Range Not Satisfiable':
+							print('Ошибка закачки: '+e.exception[1])
+							ei+=1
+						else:
+							print "Данная песня уже закачана, ничо не делаю.."
+							afi+=1
+					else:
+						print "Данная песня уже закачана, ничо не делаю.."
+						afi+=1
+			pass
+	else:
+		print "Данная песня уже закачана, ничо не делаю.."
+		afi+=1
 	if nic==1:
 		fp.write("#EXTINF:,%s\n" % (artist+" - "+title))
 		fp.write("%s.mp3\n" % (fname))
