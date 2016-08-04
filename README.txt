@@ -1,7 +1,7 @@
 VK Audios Downloader
 This python script download all audios from your account to specified in config folder.
 
-Notice: Old version suddenly stoped working, so been bewritten from null at 04.08.2016 (now it absolutely wroten by me software, not fork)
+Notice: Old version suddenly stoped working, so been rewritten from null at 04.08.2016 (now it absolutely wroten by me software, not fork)
 
 Software requirements:
 Python 2.7 with modules: urlgrabber, vk_api (install with "pip install vk_api")
