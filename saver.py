@@ -76,11 +76,11 @@ for audio in range(len(audios)):
 
 	sys.stdout.write("["+str(int((audio*1.0/len(audios)*1.0)*100))+"%] "+"Processing \"%s\" (#%s of %s).. " % (fname, audio, len(audios)))
 	filepath = os.path.join(config.destdir, "%s.mp3" % (fname))
+	fp.write("#EXTINF:,%s\n" % (artist+" - "+title))
+	fp.write("%s.mp3\n" % (fname))
 	if os.path.isfile(filepath)==False:
 		try:
 			g.urlgrab(str(audios[audio]['url']), filename=filepath)
-			fp.write("#EXTINF:,%s\n" % (artist+" - "+title))
-			fp.write("%s.mp3\n" % (fname))
 			rlist.append("%s.mp3" % (fname))
 			sadc+=1
 			print('Complete')
