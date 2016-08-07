@@ -32,7 +32,7 @@ vk = vk_session.get_api()
 
 # Audios load
 sys.stdout.write('Fetching audios list from VK.. ')
-totalAudiosCount=vk.audio.getCount()
+totalAudiosCount=vk.audio.getCount(owner_id=vk.users.get()[0]['id'])
 
 audios=[]
 
