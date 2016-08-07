@@ -2,20 +2,21 @@
 
 # VK Audios Saver configuration file
 
+# How to provide access to your audios to VK Audios Saver script:
 
-# VK Acoount Log-in Information
+# Go to this link then grant access:
+# https://oauth.vk.com/authorize?client_id=5128915&scope=audio,offline&response_type=token
+# Then copy access_token value from address link and put into token value below
+# P.S. Read this instruction for more correct understanding: http://zenno.pro/kak-poluchit-access-token-prilozheniya-vk-com/
 
+# VK Access Information
 
-# Username (phone or email)
-username='<your phone number or email here>'
-# Password
-password='<your password here>'
+# access_token value here
+token='<insert your access_token value here>'
 
 
 # Download config
 
-# page id (0 = use logged in account page, for groups use negative id value)
-pageid=0
 # audios download destination dir
 destdir='music'
 # playlist file

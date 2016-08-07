@@ -21,7 +21,7 @@ except ImportError as error_msg:
 
 # Authorization & API capture
 sys.stdout.write('Proceeding authorization at VK.. ')
-vk_session = vk_api.VkApi(config.username, config.password)
+vk_session = vk_api.VkApi(token=config.token)
 try:
 	vk_session.authorization()
 	print('Done')
@@ -32,8 +32,7 @@ vk = vk_session.get_api()
 
 # Audios load
 sys.stdout.write('Fetching audios list from VK.. ')
-if config.pageid==0: config.pageid=vk.users.get()[0]['id']
-totalAudiosCount=vk.audio.getCount(owner_id=config.pageid)
+totalAudiosCount=vk.audio.getCount()
 
 audios=[]
 
