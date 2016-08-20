@@ -62,6 +62,7 @@ fp.write("#EXTM3U\n")
 aeac=0
 rtec=0
 sadc=0
+dnac=0
 
 for audio in range(len(audios)):
 	# converting artist & title to proper runtime
@@ -79,10 +80,14 @@ for audio in range(len(audios)):
 	fp.write("%s.mp3\n" % (fname))
 	if os.path.isfile(filepath)==False:
 		try:
-			g.urlgrab(str(audios[audio]['url']), filename=filepath)
-			rlist.append("%s.mp3" % (fname))
-			sadc+=1
-			print('Complete')
+			try:
+				g.urlgrab(str(audios[audio]['url']), filename=filepath)
+				rlist.append("%s.mp3" % (fname))
+				sadc+=1
+				print('Complete')
+			except IndexError as e:
+				print('Download unavailable')
+				dnac+=1
 		except urlgrabber.grabber.URLGrabError, e:
 			if e.exception[1] != 'The requested URL returned error: 416 Requested Range Not Satisfiable':
 				rtec+=1
@@ -90,6 +95,7 @@ for audio in range(len(audios)):
 	else:
 		aeac+=1
 		print('Already exists.')
+		rlist.append("%s.mp3" % (fname))
 fp.close()
 rlist.append(config.playlist)
 rlist.append('playlist_deprecated.m3u')
@@ -98,6 +104,7 @@ print('Download complete!')
 print('Displaying runtime stat..')
 print('Total '+str(totalAudiosCount)+' audios detected at target ID')
 if totalAudiosCount<>len(audios): print('But only '+str(len(audios))+' audios available for script.')
+if dnac>0: print('And VK server not gived download URL for '+str(dnac)+' audios.')
 if sadc>0: print('Total successful downloads: '+str(sadc))
 if aeac>0: print('Total already downloaded audios: '+str(aeac))
 if rtec>0: print('Total terminated by error downloads: '+str(rtec))
