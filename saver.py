@@ -4,7 +4,7 @@ import sys
 reload(sys)  
 sys.setdefaultencoding('utf8')
 sys.stdout.write('Loading libs.. ')
-import vk_api
+import vk
 import re, os, codecs
 import urlgrabber
 g = urlgrabber.grabber.URLGrabber(reget='simple')
@@ -21,14 +21,14 @@ except ImportError as error_msg:
 
 # Authorization & API capture
 sys.stdout.write('Proceeding authorization at VK.. ')
-vk_session = vk_api.VkApi(token=config.token)
+autherr=vk.exceptions.VkAPIError
 try:
-	vk_session.authorization()
+	vk=vk.API(vk.Session(access_token=config.token), v='5.53', lang='ru', timeout=10)
+	vk.audio.get() # test
 	print('Done')
-except vk_api.AuthorizationError as error_msg:
+except autherr:
 	print('Error')
-	raise Exception, ('VK authorization error: '+str(error_msg))
-vk = vk_session.get_api()
+	raise Exception, 'VK access_token auth error!'
 
 # Audios load
 sys.stdout.write('Fetching audios list from VK.. ')

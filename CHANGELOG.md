@@ -1,5 +1,9 @@
 VK Audios Saver python script changelog:
 
+23 Aug 2016:
+
++ Changed VK API interraction lib from "vk_api" to "vk"
+
 20 Aug 2016:
 
 + Fixed excess audios search (since 04 Aug 2016 update if song already downloaded it wont be marked as existing in VK audios)
