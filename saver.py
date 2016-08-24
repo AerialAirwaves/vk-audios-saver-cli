@@ -87,10 +87,9 @@ for audio in range(len(audios)):
 			except IndexError as e:
 				print('Download unavailable')
 				dnac+=1
-		except urlgrabber.grabber.URLGrabError, e:
-			if e.exception[1] != 'The requested URL returned error: 416 Requested Range Not Satisfiable':
-				rtec+=1
-				print('Error')
+		except:
+			rtec+=1
+			print('Error')
 	else:
 		aeac+=1
 		print('Already exists.')
