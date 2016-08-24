@@ -6,8 +6,7 @@ sys.setdefaultencoding('utf8')
 sys.stdout.write('Loading libs.. ')
 import vk
 import re, os, codecs
-import urlgrabber
-g = urlgrabber.grabber.URLGrabber(reget='simple')
+import urllib
 print('Done')
 
 # Config file load
@@ -81,7 +80,7 @@ for audio in range(len(audios)):
 	if os.path.isfile(filepath)==False:
 		try:
 			try:
-				g.urlgrab(str(audios[audio]['url']), filename=filepath)
+				urllib.urlretrieve(str(audios[audio]['url']), filepath)
 				rlist.append("%s.mp3" % (fname))
 				sadc+=1
 				print('Complete')
