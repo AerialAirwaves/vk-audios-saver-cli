@@ -1,5 +1,9 @@
 VK Audios Saver python script changelog:
 
+24 Aug 2016:
+
++ Changed mp3 download lib from "urlgrabber" to "urllib"
+
 23 Aug 2016:
 
 + Changed VK API interraction lib from "vk_api" to "vk"
