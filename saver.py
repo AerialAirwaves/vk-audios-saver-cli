@@ -96,7 +96,7 @@ for audio in range(len(audios)):
 		rlist.append("%s.mp3" % (fname))
 fp.close()
 rlist.append(config.playlist)
-rlist.append('playlist_deprecated.m3u')
+rlist.append('playlist_deprecated.m3u8')
 print('Download complete!')
 
 print('Displaying runtime stat..')
@@ -118,7 +118,7 @@ if len(diffr)>0:
 			difff.append(name)
 	if len(diffm)>0:
 		print "Notice: Script found %s (maybe) excess audio files:" %(len(diffm))
-		fp=codecs.open(config.destdir+"/playlist_deprecated.m3u", 'w', 'utf-8')
+		fp=codecs.open(config.destdir+"/playlist_deprecated.m3u8", 'w', 'utf-8')
 		fp.write("#EXTM3U\n")
 		for name in diffm:
 			print name
