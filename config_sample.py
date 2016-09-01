@@ -25,4 +25,4 @@ token='<insert your access_token value here>'
 # audios download destination dir
 destdir='music'
 # playlist file
-playlist='playlist.m3u'
+playlist='playlist.m3u8'
