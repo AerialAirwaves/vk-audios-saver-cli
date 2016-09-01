@@ -1,5 +1,9 @@
 VK Audios Saver python script changelog:
 
+1 Sep 2016:
+
++ Changed autogen playlists extension from "m3u" to "m3u8" for better readability by most players (8 digit at the end gives them to know about file encoded with utf-8)
+
 24 Aug 2016:
 
 + Changed mp3 download lib from "urlgrabber" to "urllib"
