@@ -164,13 +164,22 @@ if len(diffr)>0:
 			difff.append(name)
 	if len(diffm)>0:
 		print "Notice: Script found %s (maybe) excess audio files:" %(len(diffm))
-		fp=codecs.open(config.destdir+"/"+config.playlist_prefix+"_deprecated.m3u8", 'w', 'utf-8')
-		fp.write("#EXTM3U\n")
+		if config.deleteExcess==False:
+			fp=codecs.open(config.destdir+"/"+config.playlist_prefix+"_deprecated.m3u8", 'w', 'utf-8')
+			fp.write("#EXTM3U\n")
 		for name in diffm:
-			print name
-			fp.write(name+"\n")
-		fp.close()
-		print "It may be deleted or seized by VK administration audios. Saved to playlist_deprecated"
+				print name
+				if config.deleteExcess==False: fp.write(name+"\n")
+				else:
+					os.remove(config.destdir+'/'+name)
+		if config.deleteExcess==False: fp.close()
+		if config.deleteExcess==False: print "It may be deleted or seized by VK administration audios. Saved to playlist deprecated."
+		else:
+			print "Excess deletion is enabled in config, it all were wiped"
+
 	if len(difff)>0:
 		print "Notice: Script found %s (maybe) excess files:" % len(difff)
-		for name in difff: print name
+		for name in difff:
+			print name
+			if config.deleteExcess==True: os.remove(config.destdir+'/'+name)
+		if config.deleteExcess==True: print "Excess deletion is enabled in config, it all were wiped"

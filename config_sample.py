@@ -25,6 +25,9 @@ token='<insert your access_token value here>'
 # audios download destination dir
 destdir='music'
 
+# delete excess audios and files yes - True, no - False
+deleteExcess=False
+
 # playlist prefix
 playlist_prefix='playlist'
 

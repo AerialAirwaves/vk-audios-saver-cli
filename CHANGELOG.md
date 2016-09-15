@@ -4,6 +4,7 @@ VK Audios Saver python script changelog:
 
 * Added by VK Audio Albums playlists generation option
 * Added audios lyrics saving option
+* Added excess files autodeletion option
 
 1 Sep 2016:
 
