@@ -24,5 +24,18 @@ token='<insert your access_token value here>'
 
 # audios download destination dir
 destdir='music'
-# playlist file
-playlist='playlist.m3u8'
+
+# playlist prefix
+playlist_prefix='playlist'
+
+# generate playlists from your VK Albums? yes - True, no - False
+generateAlbumPlaylists=True
+
+
+# write songs lyrics (if present) to specified dir with song name
+writeSongsLyrics=True
+
+# lyrics dir
+lyricsDir='lyrics'
+# Is lyrics dir location is absolute and should'nt be located inside download destination dir? yes - True, no - False
+lyricsDirIsPathAbsolute=False

@@ -1,5 +1,10 @@
 VK Audios Saver python script changelog:
 
+15 Sep 2016:
+
+* Added by VK Audio Albums playlists generation option
+* Added audios lyrics saving option
+
 1 Sep 2016:
 
 + Changed autogen playlists extension from "m3u" to "m3u8" for better readability by most players (8 digit at the end gives them to know about file encoded with utf-8)

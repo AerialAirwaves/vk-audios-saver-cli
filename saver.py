@@ -7,6 +7,7 @@ sys.stdout.write('Loading libs.. ')
 import vk
 import re, os, codecs
 import urllib
+from time import sleep
 print('Done')
 
 # Config file load
@@ -33,10 +34,7 @@ except autherr:
 sys.stdout.write('Fetching audios list from VK.. ')
 totalAudiosCount=vk.audio.getCount(owner_id=vk.users.get()[0]['id'])
 
-audios=[]
-
-for caudio in vk.audio.get()['items']:
-	audios.append({'aid': caudio['id'], 'title': caudio['title'], 'artist': caudio['artist'], 'url': caudio['url']})
+audios=vk.audio.get()['items']
 
 print('Done')
 if totalAudiosCount<>len(audios): print('Notice: VK servers provided information about '+str(len(audios))+' audios only of '+str(totalAudiosCount)+' total.')
@@ -44,6 +42,13 @@ if totalAudiosCount<>len(audios): print('Notice: VK servers provided information
 if not os.path.exists(config.destdir):
 	print('Notice: Download destination dir is not exists, attempting to create..')
 	os.makedirs(config.destdir)
+
+if config.writeSongsLyrics==True:
+	if config.lyricsDirIsPathAbsolute==True: lyricsDir=config.lyricsDir+'/'
+	else: lyricsDir=config.destdir+'/'+config.lyricsDir+'/'
+	if not os.path.exists(lyricsDir):
+		print('Notice: Lyrics dir is not exists, attempting to create..')
+		os.makedirs(lyricsDir)
 
 print('Starting '+str(len(audios))+' audios download..')
 
@@ -55,7 +60,7 @@ def diff(a, b):
 
 rlist=[]
 
-fp=codecs.open(config.destdir+"/"+config.playlist, 'w', 'utf-8')
+fp=codecs.open(config.destdir+"/"+config.playlist_prefix+'.m3u8', 'w', 'utf-8')
 fp.write("#EXTM3U\n")
 
 aeac=0
@@ -94,11 +99,52 @@ for audio in range(len(audios)):
 		aeac+=1
 		print('Already exists.')
 		rlist.append("%s.mp3" % (fname))
+	if config.writeSongsLyrics==True:
+		lid=0
+		try: lid=audios[audio]['lyrics_id']
+		except KeyError: pass
+		if lid<>0:
+			if not os.path.exists(lyricsDir+fname+'.txt'):
+				lf=codecs.open(lyricsDir+fname+'.txt', 'w', 'utf-8')
+				lf.write(vk.audio.getLyrics(lyrics_id=lid)['text'].encode('utf8'))
+				lf.close()
+				sleep(0.32)
+
+
+
+
 fp.close()
-rlist.append(config.playlist)
-rlist.append('playlist_deprecated.m3u8')
+rlist.append(config.playlist_prefix+'.m3u8')
+rlist.append(config.playlist_prefix+'_deprecated.m3u8')
 print('Download complete!')
 
+if config.generateAlbumPlaylists==True:
+	print('Generating playlists from your VK Albums..')
+	albums=vk.audio.getAlbums()
+	if albums['count']==len(albums['items']): print('Total '+str(albums['count'])+' albums found')
+	else: print('Notice: Only '+str(len(albums['items']))+' albums accessable, but server returned count value '+str(albums['count']))
+	for album in albums['items']:
+		atitle=re.sub(' +', ' ', (str(album['title'].encode('utf8')).strip())).replace('&amp', '&').replace('&;', '&')
+		print('Processing album "'+atitle+'"..')
+		plf=codecs.open(config.destdir+"/"+config.playlist_prefix+'_'+atitle+'.m3u8', 'w', 'utf-8')
+		rlist.append(config.playlist_prefix+'_'+atitle+'.m3u8')
+		plf.write("#EXTM3U\n")
+		for audio in vk.audio.get(album_id=album['id'])['items']:
+
+			artist = re.sub(' +', ' ', (str(audio['artist'].encode('utf8')).strip())).replace('&amp', '&').replace('&;', '&')
+			title = re.sub(' +', ' ', (str(audio['title'].encode('utf8')).strip())).replace('&amp', '&').replace('&;', '&')
+			if (artist=="" or artist.isspace()) and (title=="" or title.isspace()):
+				fname=aid
+			elif (artist=="" or artist.isspace()) and not (title=="" or title.isspace()):
+				fname = re.sub(' +', ' ', ("Unknown - "+title).translate(None, ':*?!@%$<>|+\\\"').replace('/', '-'))
+			else: fname = re.sub(' +', ' ', (artist+" - "+title).translate(None, ':*?!@%$<>|+\\\"').replace('/', '-'))
+
+			filepath = os.path.join(config.destdir, "%s.mp3" % (fname))
+			if os.path.isfile(filepath)==True:
+				plf.write("#EXTINF:,%s\n" % (artist+" - "+title))
+				plf.write("%s.mp3\n" % (fname))
+			else: print('Warning: "'+fname+'" was not found at download dest dir, skipping from adding')
+print('Complete')
 print('Displaying runtime stat..')
 print('Total '+str(totalAudiosCount)+' audios detected at target ID')
 if totalAudiosCount<>len(audios): print('But only '+str(len(audios))+' audios available for script.')
@@ -118,7 +164,7 @@ if len(diffr)>0:
 			difff.append(name)
 	if len(diffm)>0:
 		print "Notice: Script found %s (maybe) excess audio files:" %(len(diffm))
-		fp=codecs.open(config.destdir+"/playlist_deprecated.m3u8", 'w', 'utf-8')
+		fp=codecs.open(config.destdir+"/"+config.playlist_prefix+"_deprecated.m3u8", 'w', 'utf-8')
 		fp.write("#EXTM3U\n")
 		for name in diffm:
 			print name
