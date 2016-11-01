@@ -53,13 +53,14 @@ if config.writeSongsLyrics==True:
 print('Starting '+str(len(audios))+' audios download..')
 
 flist=[f for f in os.listdir(config.destdir) if os.path.isfile(os.path.join(config.destdir, f))]
+fllist=[f for f in os.listdir(lyricsDir) if os.path.isfile(os.path.join(lyricsDir, f))]
 
 def diff(a, b):
 	b = set(b)
 	return [aa for aa in a if aa not in b]
 
 rlist=[]
-
+rllist=[]
 fp=codecs.open(config.destdir+"/"+config.playlist_prefix+'.m3u8', 'w', 'utf-8')
 fp.write("#EXTM3U\n")
 
@@ -108,10 +109,13 @@ for audio in range(len(audios)):
 				lf=codecs.open(lyricsDir+fname+'.txt', 'w', 'utf-8')
 				lf.write(vk.audio.getLyrics(lyrics_id=lid)['text'].encode('utf8'))
 				lf.close()
+				rllist.append("%s.txt" % (fname))
 				sleep(0.32)
+			rllist.append("%s.txt" % (fname))
 
-
-
+if config.writeSongsLyrics==True:
+	for f in diff(fllist, rllist):
+		os.delete(f)
 
 fp.close()
 rlist.append(config.playlist_prefix+'.m3u8')
@@ -129,7 +133,11 @@ if config.generateAlbumPlaylists==True:
 		plf=codecs.open(config.destdir+"/"+config.playlist_prefix+'_'+atitle+'.m3u8', 'w', 'utf-8')
 		rlist.append(config.playlist_prefix+'_'+atitle+'.m3u8')
 		plf.write("#EXTM3U\n")
-		for audio in vk.audio.get(album_id=album['id'])['items']:
+		try: calbum=vk.audio.get(album_id=album['id'])['items']
+		except autherr as e:
+			sleep(0.33)
+			calbum=vk.audio.get(album_id=album['id'])['items']
+		for audio in calbum:
 
 			artist = re.sub(' +', ' ', (str(audio['artist'].encode('utf8')).strip())).replace('&amp', '&').replace('&;', '&')
 			title = re.sub(' +', ' ', (str(audio['title'].encode('utf8')).strip())).replace('&amp', '&').replace('&;', '&')
@@ -154,6 +162,7 @@ if aeac>0: print('Total already downloaded audios: '+str(aeac))
 if rtec>0: print('Total terminated by error downloads: '+str(rtec))
 
 diffr=diff(flist, rlist)
+
 if len(diffr)>0:
 	diffm=[]
 	difff=[]
