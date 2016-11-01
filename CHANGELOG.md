@@ -1,5 +1,11 @@
 VK Audios Saver python script changelog:
 
+1 Nov 2016:
+
+* Fixed 'Too many requests per second' VK API error while processing album playlists
+* Added deleted audios lyrics autodeletion
+
+
 15 Sep 2016:
 
 * Added by VK Audio Albums playlists generation option
