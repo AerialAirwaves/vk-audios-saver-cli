@@ -115,7 +115,7 @@ for audio in range(len(audios)):
 
 if config.writeSongsLyrics==True:
 	for f in diff(fllist, rllist):
-		os.delete(f)
+		os.remove(lyricsDir+f)
 
 fp.close()
 rlist.append(config.playlist_prefix+'.m3u8')
